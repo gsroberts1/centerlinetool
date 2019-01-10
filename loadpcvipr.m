@@ -1,4 +1,4 @@
-function [directory, nframes, res, fov, timeres, v, MAG, timeMIP,vMean] = loadpcvipr()
+function [directory, nframes, res, fov, timeres, v, MAG, timeMIP, vMean] = loadpcvipr()
 % Get and load input directory
 
 directory = uigetdir;
@@ -15,11 +15,11 @@ if fid<0
     error('Could not open pcvipr_header.txt file.');
 else 
     % Read columns of headerdata according to format string.
-    dataArray = textscan(fid, formatSpec, 'Delimiter', delimiter, 'MultipleDelimsAsOne', true,  'ReturnOnError', false);
+    dataArray = textscan(fid,formatSpec,'Delimiter',delimiter,'MultipleDelimsAsOne',true,'ReturnOnError',false);
     fclose(fid);
 
     % Convert string to num
-    dataArray{1,2} = cellfun(@str2num,dataArray{1,2}(:),'UniformOutput', false);
+    dataArray{1,2} = cellfun(@str2num,dataArray{1,2}(:),'UniformOutput',false);
     
     pcviprheader = cell2struct(dataArray{1,2}(:), dataArray{1,1}(:), 1)
 
@@ -27,10 +27,11 @@ else
     timeres = pcviprheader.timeres;             % Temporal resolution
     fov = (pcviprheader.fovx)/10 ;              % Field of view in cm
     res = pcviprheader.matrixx;                 % Number of pixels in row,col,slice (isotropic resolution)
-    v = zeros(res,res,res,3,nframes, 'int16');  % Initial 4D flow matrix, three directions, 20 time frames
+    v = zeros(res,res,res,3,nframes,'int16');  % Initialized 4D flow matrix, three directions, 20 time frames
+   
+    % Looped reading of all time-resolved velocity images
     disp('Loading data')
-
-    for m = 0:nframes-1;% Looped reading of all velocity images
+    for m = 0:nframes-1
 
         fida1 = fopen([directory '/ph_' num2str(m,'%03i') '_vd_1.dat'], 'r');
         v(:,:,:,1,m+1) = reshape(fread(fida1,res^3,'short')',res,res,res);
@@ -47,7 +48,9 @@ else
         disp(['Completed reading frame ', num2str(m)])
     end
     v = single(v);
-    disp('Reading Composite Data');
+    
+    % Read in time-averaged images
+    disp('Reading composite data');
     MAG = load_dat(fullfile(directory,'MAG.dat'),[res res res]);
     vMean = single(zeros(res,res,res,3));
     vMean(:,:,:,1) = load_dat(fullfile(directory,'comp_vd_1.dat'),[res res res]);
@@ -55,14 +58,12 @@ else
     vMean(:,:,:,3) = load_dat(fullfile(directory,'comp_vd_3.dat'),[res res res]);
 
     % Calculate a Polynomial
-    [poly_fitx,poly_fity, poly_fitz] = background_phase_correction(MAG,vMean(:,:,:,1),vMean(:,:,:,2),vMean(:,:,:,3));
-
-
-    disp('Correcting Data with Polynomial');
-    xrange = single( linspace(-1,1,size(MAG,1)));
-    yrange = single( linspace(-1,1,size(MAG,2)));
-    zrange = single( linspace(-1,1,size(MAG,3)));
-    [y,x,z] = meshgrid( yrange,xrange,zrange);
+    [poly_fitx,poly_fity,poly_fitz] = background_phase_correction(MAG,vMean(:,:,:,1),vMean(:,:,:,2),vMean(:,:,:,3));
+    disp('Correcting data with polynomial');
+    xrange = single(linspace(-1,1,size(MAG,1)));
+    yrange = single(linspace(-1,1,size(MAG,2)));
+    zrange = single(linspace(-1,1,size(MAG,3)));
+    [y,x,z] = meshgrid(yrange,xrange,zrange);
 
     disp('   Vx');
     back = evaluate_poly(x,y,z,poly_fitx);

@@ -44,6 +44,8 @@ end
 % End initialization code - DO NOT EDIT
 
 
+
+
 % --- Executes just before background_phase_correction is made visible.
 function background_phase_correction_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -55,14 +57,13 @@ function background_phase_correction_OpeningFcn(hObject, eventdata, handles, var
 % Update handles structure
 guidata(hObject, handles);
 
-
 set(handles.status_axes,'XTickLabel','')
 set(handles.status_axes,'YTickLabel','')
 set(handles.status_axes,'Xtick',[]);
 set(handles.status_axes,'Ytick',[]);
 set(handles.status_axes,'box','off');
 
-%%Load Velocity Data%%%%%%%%%%
+% Load Velocity Data
 handles.MAG= varargin{1};
 handles.VX = varargin{2};
 handles.VY = varargin{3};
@@ -99,6 +100,7 @@ uiwait(handles.figure1);
 
 
 
+
 % --- Outputs from this function are returned to the command line.
 function varargout = background_phase_correction_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -114,6 +116,9 @@ varargout{3} = handles.poly_fitz;
 
 delete(handles.figure1);
 
+
+
+
 % --- Executes on slider movement.
 function image_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to image_slider (see GCBO)
@@ -123,6 +128,9 @@ function image_slider_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 update_images(handles)
+
+
+
 
 function update_images(handles);
 
@@ -137,7 +145,7 @@ apply_pc = get(handles.apply_box,'Value');
 vx_slice = single(handles.VX(:,:,slice) );
 vy_slice = single(handles.VY(:,:,slice) );
 vz_slice = single(handles.VZ(:,:,slice) );
-mag_slice= single(handles.MAG(:,:,slice) );
+mag_slice = single(handles.MAG(:,:,slice) );
 
 %Range
 if apply_pc ==1
@@ -182,6 +190,8 @@ drawnow;
 drawnow;
 
 
+
+
 % --- Executes during object creation, after setting all properties.
 function image_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to image_slider (see GCBO)
@@ -192,6 +202,8 @@ function image_slider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
 
 
 % --- Executes on button press in update_button.
@@ -218,6 +230,8 @@ set(handles.iter_text,'String',num2str(iter));
 update_images(handles);
 
 
+
+
 function fit_order_Callback(hObject, eventdata, handles)
 % hObject    handle to fit_order (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -225,6 +239,8 @@ function fit_order_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of fit_order as text
 %        str2double(get(hObject,'String')) returns contents of fit_order as a double
+
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -240,6 +256,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+
+
 % --- Executes on button press in apply_box.
 function apply_box_Callback(hObject, eventdata, handles)
 % hObject    handle to apply_box (see GCBO)
@@ -248,6 +266,8 @@ function apply_box_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of apply_box
 update_images(handles);
+
+
 
 
 % --- Executes on slider movement.
@@ -259,6 +279,9 @@ function vmax_slider_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'Value') returns position of slider
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 update_images(handles);
+
+
+
 
 % --- Executes during object creation, after setting all properties.
 function vmax_slider_CreateFcn(hObject, eventdata, handles)
@@ -273,6 +296,7 @@ end
 
 
 
+
 function noise_thresh_Callback(hObject, eventdata, handles)
 % hObject    handle to noise_thresh (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -282,6 +306,8 @@ function noise_thresh_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of noise_thresh as a double
 
 update_images(handles);
+
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -298,6 +324,7 @@ end
 
 
 
+
 function cd_thresh_Callback(hObject, eventdata, handles)
 % hObject    handle to cd_thresh (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -306,6 +333,9 @@ function cd_thresh_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of cd_thresh as text
 %        str2double(get(hObject,'String')) returns contents of cd_thresh as a double
 update_images(handles);
+
+
+
 
 % --- Executes during object creation, after setting all properties.
 function cd_thresh_CreateFcn(hObject, eventdata, handles)
@@ -321,6 +351,7 @@ end
 
 
 
+
 function num_iter_Callback(hObject, eventdata, handles)
 % hObject    handle to num_iter (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -328,6 +359,8 @@ function num_iter_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of num_iter as text
 %        str2double(get(hObject,'String')) returns contents of num_iter as a double
+
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -343,6 +376,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+
+
 % --- Executes on slider movement.
 function cd_thresh_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to cd_thresh_slider (see GCBO)
@@ -353,6 +388,9 @@ function cd_thresh_slider_Callback(hObject, eventdata, handles)
 %        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
 
 update_images(handles);
+
+
+
 
 % --- Executes during object creation, after setting all properties.
 function cd_thresh_slider_CreateFcn(hObject, eventdata, handles)
@@ -366,6 +404,8 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
 end
 
 
+
+
 % --- Executes on slider movement.
 function noise_thresh_slider_Callback(hObject, eventdata, handles)
 % hObject    handle to noise_thresh_slider (see GCBO)
@@ -377,6 +417,10 @@ function noise_thresh_slider_Callback(hObject, eventdata, handles)
 
 update_images(handles);
 
+
+
+
+
 % --- Executes during object creation, after setting all properties.
 function noise_thresh_slider_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to noise_thresh_slider (see GCBO)
@@ -387,6 +431,8 @@ function noise_thresh_slider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
 
 
 % --- Executes on button press in pushbutton2.
@@ -417,6 +463,8 @@ guidata(hObject, handles);
 update_images(handles);
 iter = 0;
 set(handles.iter_text,'String',num2str(iter));
+
+
 
 
 % --- Executes when user attempts to close figure1.
@@ -563,5 +611,4 @@ else
     poly_fitz.px = px;
     poly_fitz.py = py;
     poly_fitz.pz = pz;
-    
 end
