@@ -26,7 +26,7 @@ function varargout = centerline_tool(varargin)
 % 2015
 % updated Eric Schrauben; The Hospital for Sick Children, Toronto, 2017
 
-% Last Modified by GUIDE v2.5 06-Mar-2017 13:49:50
+% Last Modified by GUIDE v2.5 14-Jan-2019 15:29:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -62,7 +62,9 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
-
+set(handles.text20,'String',' ') % initialize static box to blank
+set(handles.text21,'String',' ') % initialize static box to blank
+set(handles.text22,'String',' ') % initialize static box to blank
 
 % UIWAIT makes centerline_tool wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -86,19 +88,19 @@ function flow_parameters_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Global variable declarations
 
-% from load pc vipr
+% from load pc_vipr
 global v MAG timeMIP nframes
 % from visualization
 global branchActual
 % from flow_parameters
 global area diam flowPerHeartCycle flowPulsatile  ...
     maxVel wss_simple wss_simple_avg meanVel PI
-
 r = 6;
 [area, diam, flowPerHeartCycle, flowPulsatile, ...
     maxVel,wss_simple, wss_simple_avg, meanVel,PI] = ...
     flow_parameters(branchActual, v, timeMIP, r,nframes);
 guidata(hObject,handles);
+set(handles.text20,'String','Flow Parameters Calculated')
 
 % --- Executes on selection change in plot_popup.
 function plot_popup_Callback(hObject, eventdata, handles)
@@ -228,6 +230,7 @@ axis  tight ;
 set(0,'defaultlinelinewidth',2);set(0,'DefaultAxesFontSize',14);
 set(findall(gcf,'type','text'),'fontSize',14,'fontName','Arial')
 guidata(hObject,handles);
+
 
 function inputPoint_Callback(hObject, eventdata, handles)
 % hObject    handle to inputPoint (see GCBO)
@@ -407,6 +410,8 @@ global area diam flowPerHeartCycle  flowPulsatile ...
 
 saving_data(timeres, nframes, directory, handles, area, diam, flowPerHeartCycle,  flowPulsatile, ...
     maxVel, wss_simple, wss_simple_avg, meanVel, PI )
+saveas(gcf,'GUI_snap')
+export_fig GUI_snap.png
 cd ..
 
 
@@ -417,6 +422,18 @@ function save_name_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of save_name as text
 %        str2double(get(hObject,'String')) returns contents of save_name as a double
+val = get(handles.save_name, 'Value');
+str = get(handles.save_name, 'String');
+str = cellstr(str);
+vessel_name = str{val};
+DIR = dir(['*',vessel_name,'*']);
+if length(DIR) > 0
+    set(handles.text22,'String','OVERWRITE WARNING: Vessel may have already been analyzed!');
+else 
+    set(handles.text22,'String',' ');
+end 
+
+% VESSEL NAME
 
 
 % --- Executes during object creation, after setting all properties.
@@ -440,7 +457,7 @@ function savedata_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns savedata contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from savedata
-
+% TIME-AVERAGED FLOW, TIME-RESOLVED FLOW, EVERYTHING DROP DOWN
 
 % --- Executes during object creation, after setting all properties.
 function savedata_CreateFcn(hObject, eventdata, handles)
@@ -462,21 +479,15 @@ function load_data_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 clc;
 
-% Global variable declarations
-% from load pc vipr
+% Global variable declarations from load_pcvipr
 global directory nframes res fov timeres v MAG timeMIP vMean segment
-global m_xstart;
-global m_xstop;
-global m_ystart;
-global m_ystop;
-global m_zstart;
-global m_zstop;
+global m_xstart; global m_xstop;
+global m_ystart; global m_ystop;
+global m_zstart; global m_zstop;
 m_xstart = 1; m_ystart = 1; m_zstart = 1;
 
 [directory, nframes, res, fov, timeres, v, MAG, timeMIP, vMean] = loadpcvipr();
 cd(directory);
-
-
 
 set(handles.text26,'string',['Directory = ' directory])
 m_xstop = res; m_ystop = res; m_zstop = res;
@@ -577,73 +588,7 @@ vascularTreeReconstr = 'coarse';
 
 [CL,branchMat, branchList, branchTextList] = feature_extraction( ...
     sortingCriteria, spurLength, vMean, segment);
-
-
-% --- Executes on button press in draw_roi.
-function draw_roi_Callback(hObject, eventdata, handles)
-% hObject    handle to draw_roi (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-datacursormode off; rotate3d off; zoom off;
-global x_rect;
-global z_rect;
-m_xstart = str2double(get(handles.startX,'String'));
-m_xstop  = str2double(get(handles.stopX,'String'));
-m_ystart = str2double(get(handles.startY,'String'));
-m_ystop  = str2double(get(handles.stopY,'String'));
-m_zstart = str2double(get(handles.startZ,'String'));
-m_zstop  = str2double(get(handles.stopZ,'String'));
-
-%%%
-x_rect = imrect(handles.mipx,[m_zstart m_ystart (m_zstop - m_zstart) (m_ystop -m_ystart)]);
-y_rect = imrect(handles.mipy,[m_zstart m_xstart (m_zstop - m_zstart) (m_xstop -m_xstart)]);
-z_rect = imrect(handles.mipz,[m_ystart m_xstart (m_ystop - m_ystart) (m_xstop -m_xstart)]);
-
-%%%Cross ROI Resizing
-addNewPositionCallback(x_rect,@(p) (set_crossx(x_rect,y_rect,z_rect,handles)));
-addNewPositionCallback(y_rect,@(p) (set_crossy(x_rect,y_rect,z_rect,handles)));
-addNewPositionCallback(z_rect,@(p) (set_crossz(x_rect,y_rect,z_rect,handles)));
-
-
-function set_crossx(x_rect,y_rect,z_rect,handles)
-px = getPosition(x_rect);
-py = getPosition(y_rect);
-pz = getPosition(z_rect);
-setPosition(y_rect,[px(1) py(2) px(3) py(4)] );
-setPosition(z_rect,[px(2) pz(2) px(4) pz(4)] );
-set_start_stop(px,pz,handles);
-
-return
-
-function set_crossy(x_rect,y_rect,z_rect,handles)
-px = getPosition(x_rect);
-py = getPosition(y_rect);
-pz = getPosition(z_rect);
-setPosition(x_rect,[py(1) px(2) py(3) px(4)] );
-setPosition(z_rect,[pz(1) py(2) pz(3) py(4)] );
-set_start_stop(px,pz,handles);
-
-return
-
-
-function set_crossz(x_rect,y_rect,z_rect,handles)
-px = getPosition(x_rect);
-py = getPosition(y_rect);
-pz = getPosition(z_rect);
-setPosition(x_rect,[px(1) pz(1) px(3) pz(3)] );
-setPosition(y_rect,[py(1) pz(2) py(3) pz(4)] );
-set_start_stop(px,pz,handles);
-
-return
-
-function set_start_stop(px,pz,handles)
-set(handles.startX,'string',floor(pz(2)));
-set(handles.startY,'string',floor(pz(1)));
-set(handles.startZ,'string',floor(px(1)));
-set(handles.stopX,'string',floor(pz(4)+pz(2)));
-set(handles.stopY,'string',floor(pz(3)+pz(1)));
-set(handles.stopZ,'string',floor(px(3)+px(1)));
-return
+set(handles.text21,'String','Feature Extraction Complete')
 
 
 
@@ -654,7 +599,6 @@ function startX_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of startX as text
 %        str2double(get(hObject,'String')) returns contents of startX as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function startX_CreateFcn(hObject, eventdata, handles)
@@ -668,8 +612,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function stopX_Callback(hObject, eventdata, handles)
 % hObject    handle to stopX (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -677,7 +619,6 @@ function stopX_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of stopX as text
 %        str2double(get(hObject,'String')) returns contents of stopX as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function stopX_CreateFcn(hObject, eventdata, handles)
@@ -692,7 +633,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function startY_Callback(hObject, eventdata, handles)
 % hObject    handle to startY (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -700,7 +640,6 @@ function startY_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of startY as text
 %        str2double(get(hObject,'String')) returns contents of startY as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function startY_CreateFcn(hObject, eventdata, handles)
@@ -714,8 +653,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function stopY_Callback(hObject, eventdata, handles)
 % hObject    handle to stopY (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -723,7 +660,6 @@ function stopY_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of stopY as text
 %        str2double(get(hObject,'String')) returns contents of stopY as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function stopY_CreateFcn(hObject, eventdata, handles)
@@ -738,7 +674,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
 function startZ_Callback(hObject, eventdata, handles)
 % hObject    handle to startZ (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -746,7 +681,6 @@ function startZ_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of startZ as text
 %        str2double(get(hObject,'String')) returns contents of startZ as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function startZ_CreateFcn(hObject, eventdata, handles)
@@ -760,8 +694,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
 function stopZ_Callback(hObject, eventdata, handles)
 % hObject    handle to stopZ (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -769,7 +701,6 @@ function stopZ_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of stopZ as text
 %        str2double(get(hObject,'String')) returns contents of stopZ as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function stopZ_CreateFcn(hObject, eventdata, handles)
@@ -784,6 +715,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+
 % --- Executes during object creation, after setting all properties.
 function mipx_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to mipx (see GCBO)
@@ -793,136 +725,7 @@ function mipx_CreateFcn(hObject, eventdata, handles)
 % Hint: place code in OpeningFcn to populate mipx
 
 
-% --- Executes on button press in update_button.
-function update_button_Callback(hObject, eventdata, handles)
-% hObject    handle to update_button (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-update_images(handles);
 
-function update_images(handles)
-
-global m_xstart segment vMean
-global m_xstop;
-global m_ystart;
-global m_ystop;
-global m_zstart;
-global m_zstop;
-
-global m_xlength;
-global m_ylength;
-global m_zlength;
-global timeMIP;
-global res;
-
-%%%COPY VALUES%%%%%%
-m_xstart = str2double(get(handles.startX,'String'));
-m_xstop  = str2double(get(handles.stopX,'String'));
-m_ystart = str2double(get(handles.startY,'String'));
-m_ystop  = str2double(get(handles.stopY,'String'));
-m_zstart = str2double(get(handles.startZ,'String'));
-m_zstop  = str2double(get(handles.stopZ,'String'));
-
-m_xlength = m_xstop - m_xstart +1;
-m_ylength = m_ystop - m_ystart +1;
-m_zlength = m_zstop - m_zstart +1 ;
-
-%%Set mips
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% XMIPS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-blank=128*ones(res+128,res+128);
-axes(handles.mipx)
-
-im = (reshape(max(timeMIP(m_xstart:m_xstop,m_ystart:m_ystop,m_zstart:m_zstop),[],1),[m_ylength m_zlength]));
-
-im = im * 195 / max(im(:));
-blank(m_ystart:m_ystop,m_zstart:m_zstop)=im;
-imagesc(blank);
-colormap gray;
-ylim([ m_ystart (m_ystart+max([m_ylength m_zlength])-1)]);
-xlim([ m_zstart (m_zstart+max([m_ylength m_zlength])-1)]);
-drawnow
-axis off
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% YMIPS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-blank=128*ones(res+128,res+128);
-axes(handles.mipy)
-
-im = (reshape(max(timeMIP(m_xstart:m_xstop,m_ystart:m_ystop,m_zstart:m_zstop),[],2),[m_xlength m_zlength]));
-
-im = im * 195 / max(im(:));
-blank(m_xstart:m_xstop,m_zstart:m_zstop)=im;
-imagesc(blank);
-colormap gray;
-xlim([m_zstart (m_zstart -1+ max([m_xlength m_zlength]))]);
-ylim([m_xstart (m_xstart -1+ max([m_xlength m_zlength]))]);
-drawnow
-axis off
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% ZMIPS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-blank=128*ones(res+128,res+128);
-axes(handles.mipz)
-
-im = (reshape(max(timeMIP(m_xstart:m_xstop,m_ystart:m_ystop,m_zstart:m_zstop),[],3),[m_xlength m_ylength]));
-
-im = im * 195 / max(im(:));
-blank(m_xstart:m_xstop,m_ystart:m_ystop)=im;
-imagesc(blank);
-colormap gray;
-xlim([(m_ystart) (m_ystart-1 +max([m_ylength m_xlength]))]);
-ylim([(m_xstart) (m_xstart-1 +max([m_ylength m_xlength]))]);
-drawnow
-axis off
-
-timeMIP2 = zeros(size(timeMIP));
-timeMIP2(m_xstart:m_xstop, m_ystart:m_ystop, m_zstart:m_zstop) = 1;
-timeMIP_crop = timeMIP.*timeMIP2;
-vMean_crop = zeros(size(vMean));
-vMean_crop(:,:,:,1) = timeMIP2.*vMean(:,:,:,1);
-vMean_crop(:,:,:,2) = timeMIP2.*vMean(:,:,:,2);
-vMean_crop(:,:,:,3) = timeMIP2.*vMean(:,:,:,3);
-
-normed_MIP = timeMIP_crop(:)./max(timeMIP_crop(:));
-[muhat,sigmahat] = normfit(normed_MIP);
-
-segment = zeros(size(timeMIP_crop));
-segment(normed_MIP>muhat+4.5*sigmahat) = 1;
-
-segment = bwareaopen(segment,round(sum(segment(:)).*0.005),6); %The value at the end of the commnad in the minimum area of each segment to keep 
-segment = imfill(segment,'holes'); % Fill in holes created by slow flow on the inside of vessels
-segment = single(segment);
-
-axes(handles.axes_3D)
-cla;
-hpatch = patch(isosurface(segment,0.5));
-colormap('gray');
-reducepatch(hpatch,0.6);
-set(hpatch,'FaceColor','red','EdgeColor', 'none');
-set(gca, 'ZDir', 'reverse')
-set(gca,'color','black')
-% Make it all look good
-camlight headlight;
-lighting gouraud
-alpha(0.9)
-% set(fig,'color','black');
-view([-.5 0 0]);
-% zoom(1.0);
-% daspect([1 1 1])
-xlim([m_ystart m_ystop]);
-ylim([m_xstart m_xstop]);
-zlim([m_zstart m_zstop]);
-axis off;
-rotate3d on
 
 function start_save_Callback(hObject, eventdata, handles)
 % hObject    handle to start_save (see GCBO)
@@ -931,7 +734,6 @@ function start_save_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of start_save as text
 %        str2double(get(hObject,'String')) returns contents of start_save as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function start_save_CreateFcn(hObject, eventdata, handles)
@@ -955,7 +757,6 @@ function edit14_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of edit14 as text
 %        str2double(get(hObject,'String')) returns contents of edit14 as a double
 
-
 % --- Executes during object creation, after setting all properties.
 function edit14_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit14 (see GCBO)
@@ -978,7 +779,6 @@ function end_save_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of end_save as text
 %        str2double(get(hObject,'String')) returns contents of end_save as a double
 
-
 % --- Executes during object creation, after setting all properties.
 function end_save_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to end_save (see GCBO)
@@ -997,5 +797,27 @@ function parametric_map_Callback(hObject, eventdata, handles)
 % hObject    handle to parametric_map (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 paramMap;
+
+
+% --- Executes during object creation, after setting all properties.
+function text20_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+% STATIC BOX: 'FLOW PARAMETERS CALCULATED'
+
+% --- Executes during object creation, after setting all properties.
+function text21_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+% STATIC BOX: 'FEATURE EXTRACTION COMPLETE'
+
+
+% --- Executes during object creation, after setting all properties.
+function text22_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to text22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+% STATIC BOX: 'OVERWRITE WARNING'

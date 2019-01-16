@@ -1,12 +1,11 @@
 function saving_data(timeres, nframes, directory, handles, area, diam, flowPerHeartCycle,  flowPulsatile, ...
     maxVel, wss_simple, wss_simple_avg, meanVel, PI )
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%SAVING_DATA: Saves flow data from GUI to .dat and .xls files
 val = get(handles.save_name, 'Value');
 str = get(handles.save_name, 'String');
 str = cellstr(str);
 savename = str{val};
-% savename = (get(handles.save_name,'String'));
+
 while ischar(savename) == 0
     error('Need to input name for vessel');
 end

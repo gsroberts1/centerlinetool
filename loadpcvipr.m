@@ -10,7 +10,7 @@ delimiter = ' ';
 % For more information, see the TEXTSCAN documentation.
 formatSpec = '%s%s%[^\n\r]';
 
-fid = fopen([directory '\pcvipr_header.txt'], 'r');%read header
+fid = fopen([directory '\pcvipr_header.txt'], 'r');% read header
 if fid<0
     error('Could not open pcvipr_header.txt file.');
 else 
@@ -27,7 +27,7 @@ else
     timeres = pcviprheader.timeres;             % Temporal resolution
     fov = (pcviprheader.fovx)/10 ;              % Field of view in cm
     res = pcviprheader.matrixx;                 % Number of pixels in row,col,slice (isotropic resolution)
-    v = zeros(res,res,res,3,nframes,'int16');  % Initialized 4D flow matrix, three directions, 20 time frames
+    v = zeros(res,res,res,3,nframes,'int16');   % Initialized 4D flow matrix, three directions, 20 time frames
    
     % Looped reading of all time-resolved velocity images
     disp('Loading data')
@@ -118,10 +118,9 @@ return
 function angio = calc_angio(MAG,vMean, Venc)
 
 angio = zeros(size(MAG),'single');
-Vmag = sqrt( sum( vMean.^2,4));
+Vmag = sqrt(sum(vMean.^2,4));
 idx = find( Vmag > Venc);
 Vmag(idx) = Venc;
-
 angio = 32000*MAG.*sin( pi/2*Vmag / Venc);
 
 
