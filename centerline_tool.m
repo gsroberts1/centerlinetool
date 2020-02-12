@@ -225,7 +225,7 @@ switch str{val}
         end
         hold off;
         xlabel('Cardiac Time (ms)'), ylabel('Flow (mL/s)'), legend(cellstr(num2str(points')))
-end
+        endf
 axis  tight ;
 set(0,'defaultlinelinewidth',2);set(0,'DefaultAxesFontSize',14);
 set(findall(gcf,'type','text'),'fontSize',14,'fontName','Arial')
@@ -432,7 +432,6 @@ if length(DIR) > 0
 else 
     set(handles.text22,'String',' ');
 end 
-
 % VESSEL NAME
 
 
