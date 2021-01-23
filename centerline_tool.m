@@ -137,7 +137,7 @@ val = get(hObject, 'Value');
 str = get(hObject, 'String');
 switch str{val}
     case 'Over Vessel Length'
-        set(handles.plot_popup,'String',{'Area';'Diameter'; 'Flow'; ...
+        set(handles.plot_popup,'String',{'Area';'Diameter'; 'Mean Flow'; ...
             'Maximum Velocity '; 'Maximum Velocity (paraboloid fit)'; 'Mean Velocity'; ...
             'Mean Velocity (paraboloid fit)'; 'Mean WSS'; 'Mean WSS (paraboloid fit)'; ...
             'Pulsatility Index'},'Value',1);
@@ -192,11 +192,11 @@ switch str{val}
         %         xlabel('Distance Along Vessel (cm)'),ylabel('Diameter (cm)')
         plot(diam);
         xlabel('Centerline Point'),ylabel('Diameter (cm)')
-    case 'Flow'
+    case 'Mean Flow'
         %         plot(distance,flowPerHeartCycle)
-        %        xlabel('Distance Along Vessel (cm)'), ylabel('Total Flow (mL/s)')
+        %        xlabel('Distance Along Vessel (cm)'), ylabel('Mean Flow (mL/s)')
         plot(flowPerHeartCycle);
-        xlabel('Centerline Point'),ylabel('Mean Flow Rate (mL/s)')
+        xlabel('Centerline Point'),ylabel('Mean Flow (mL/s)')
     case 'Maximum Velocity'
         %         plot(distance,maxVel)
         %         xlabel('Distance Along Vessel (cm)'),ylabel('Max Velocity (cm/s)')
