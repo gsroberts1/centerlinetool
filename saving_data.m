@@ -38,7 +38,7 @@ switch store
 
         % save time-averaged
         col_header = ({'Point along Vessel', 'Area (cm^2)', 'Diameter (cm)', 'Mean Velocity (cm/s)', 'Max Velocity (cm/s)',...
-           'Total Flow per heartbeat (mL)', 'WSS (Pa)','Pulsatility Index'});
+           'Mean Volumetric Flow Rate (mL/s)', 'WSS (Pa)','Pulsatility Index'});
         time_avg = vertcat(col_header,num2cell(real(horzcat(linspace(1,length(area),length(area))',area',diam',meanVel',...
             maxVel',flowPerHeartCycle',wss_simple_avg',PI'))));
         save('averaged.mat','time_avg');
@@ -71,7 +71,7 @@ switch store
         
         % save time-averaged
         col_header = ({'Point along Vessel', 'Area (cm^2)', 'Diameter (cm)', 'Mean Velocity (cm/s)', 'Max Velocity (cm/s)',...
-            'Total Flow per heartbeat (mL)', 'WSS (Pa)','Pulsatility Index'});
+            'Mean Volumetric Flow Rate (mL/s)', 'WSS (Pa)','Pulsatility Index'});
         time_avg = vertcat(col_header,num2cell(real(horzcat(linspace(1,length(area),length(area))',area',diam',meanVel',...
             maxVel',flowPerHeartCycle',wss_simple_avg',PI'))));
         save('averaged.mat','time_avg');

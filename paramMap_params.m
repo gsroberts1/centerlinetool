@@ -164,13 +164,13 @@ for k = 1:length(branchTextList)
                 vTimeFrame = segment2.*interp2(0.1*(dir(1)*vCrossection(:,:,1,1,j) + dir(2)*vCrossection(:,:,1,2,j) + ...
                     dir(3)*vCrossection(:,:,1,3,j)),2);
                 ind = find(vTimeFrame);
-                flowPulsatile(j) = mean(vTimeFrame(ind))*area_vol(indexes(i));
+                flowPulsatile(j) = mean(vTimeFrame(ind))*area_vol(indexes(i));  %cm^3/s = mL/s
                 maxVelFrame(j) = max(max(vTimeFrame));              % max velocity, in cm/s
             end
             
             % pulsatile flow waveform volume
             flowPulsatile_vol(indexes(i),:) = flowPulsatile(:);
-            % total flow
+            % mean flow over cardiac cycle (mL/s)
             flowPerHeartCycle_vol(indexes(i)) = sum(flowPulsatile)'/(nframes);
             % maximum velocity pixel within the cross section, through time
             maxVel_vol(indexes(i)) = max(maxVelFrame);

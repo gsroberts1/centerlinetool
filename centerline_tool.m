@@ -137,7 +137,7 @@ val = get(hObject, 'Value');
 str = get(hObject, 'String');
 switch str{val}
     case 'Over Vessel Length'
-        set(handles.plot_popup,'String',{'Area';'Diameter'; 'Total Flow'; ...
+        set(handles.plot_popup,'String',{'Area';'Diameter'; 'Flow'; ...
             'Maximum Velocity '; 'Maximum Velocity (paraboloid fit)'; 'Mean Velocity'; ...
             'Mean Velocity (paraboloid fit)'; 'Mean WSS'; 'Mean WSS (paraboloid fit)'; ...
             'Pulsatility Index'},'Value',1);
@@ -192,12 +192,12 @@ switch str{val}
         %         xlabel('Distance Along Vessel (cm)'),ylabel('Diameter (cm)')
         plot(diam);
         xlabel('Centerline Point'),ylabel('Diameter (cm)')
-    case 'Total Flow'
+    case 'Flow'
         %         plot(distance,flowPerHeartCycle)
         %        xlabel('Distance Along Vessel (cm)'), ylabel('Total Flow (mL/s)')
         plot(flowPerHeartCycle);
-        xlabel('Centerline Point'),ylabel('Total Flow (mL/s)')
-    case 'Maximum Velocity '
+        xlabel('Centerline Point'),ylabel('Mean Flow Rate (mL/s)')
+    case 'Maximum Velocity'
         %         plot(distance,maxVel)
         %         xlabel('Distance Along Vessel (cm)'),ylabel('Max Velocity (cm/s)')
         plot(maxVel)
@@ -224,13 +224,12 @@ switch str{val}
             plot(timeres/1000*linspace(1,nframes,nframes),smooth(flowPulsatile(points(i),:)),colors{i}); hold on
         end
         hold off;
-        xlabel('Cardiac Time (ms)'), ylabel('Flow (mL/s)'), legend(cellstr(num2str(points')))
-        endf
+        xlabel('Cardiac Time (ms)'), ylabel('Flow Rate (mL/s)'), legend(cellstr(num2str(points')))
+end
 axis  tight ;
 set(0,'defaultlinelinewidth',2);set(0,'DefaultAxesFontSize',14);
 set(findall(gcf,'type','text'),'fontSize',14,'fontName','Arial')
 guidata(hObject,handles);
-
 
 function inputPoint_Callback(hObject, eventdata, handles)
 % hObject    handle to inputPoint (see GCBO)
